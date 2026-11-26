@@ -48,7 +48,7 @@
     </div>
   </header>
 
-  <!-- ================= TELA DE LOGIN (FIREBASE AUTH) ================= -->
+  <!-- ================= TELA DE LOGIN ================= -->
   <main id="admin-login-view" class="flex-1 flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-sm bg-white p-7 rounded-3xl border border-[#EFE2D6] shadow-lg space-y-6">
       <div class="text-center space-y-2">
@@ -56,7 +56,7 @@
           <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
         <h1 class="font-serif-title text-2xl font-bold text-[#3B2823]">Acesso Restrito</h1>
-        <p class="text-xs text-[#785B52]">Entre com sua conta cadastrada no Firebase.</p>
+        <p class="text-xs text-[#785B52]">Entre para gerenciar os bolos e fotos da vitrine.</p>
       </div>
 
       <form onsubmit="handleAdminLogin(event)" class="space-y-4">
@@ -89,7 +89,7 @@
       <div>
         <h2 class="font-serif-title text-2xl font-bold text-[#3B2823]">Bolos Cadastrados na Vitrine</h2>
         <p class="text-xs sm:text-sm text-[#785B52] mt-1">
-          Sincronizado na nuvem (coleção <code class="bg-[#FAF3EB] px-1.5 py-0.5 rounded text-[#BE3E5B]">silvia_bolos_produtos</code>).
+          Adicione novos bolos com foto, nome e recheio para aparecerem na página inicial.
         </p>
       </div>
 
@@ -101,7 +101,7 @@
 
     <!-- Lista de Produtos -->
     <div id="admin-products-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <!-- Renderizado via Firestore -->
+      <!-- Renderizado via JS -->
     </div>
   </main>
 
@@ -118,13 +118,13 @@
       <form onsubmit="saveNewProduct(event)" class="p-6 space-y-4">
         <!-- Upload Base64 -->
         <div>
-          <label class="block text-xs font-bold text-[#3B2823] mb-1.5">Foto do Bolo (Upload Base64) *</label>
+          <label class="block text-xs font-bold text-[#3B2823] mb-1.5">Foto do Bolo *</label>
           <label for="prod-image-file" class="flex flex-col items-center justify-center w-full h-40 rounded-2xl border-2 border-dashed border-[#E4D3C3] hover:border-[#BE3E5B] bg-[#FAF6F1] cursor-pointer overflow-hidden relative transition">
             <img id="prod-image-preview" src="" alt="Prévia" class="hidden w-full h-full object-cover" />
             <div id="prod-upload-placeholder" class="flex flex-col items-center text-center p-4">
               <i data-lucide="image-plus" class="w-7 h-7 text-[#BE3E5B] mb-1.5"></i>
               <span class="text-xs font-semibold text-[#3B2823]">Clique para escolher uma imagem</span>
-              <span class="text-[11px] text-[#8A6D64] mt-0.5">JPG, PNG ou WEBP (otimizado em Base64)</span>
+              <span class="text-[11px] text-[#8A6D64] mt-0.5">JPG, PNG ou WEBP</span>
             </div>
           </label>
           <input type="file" id="prod-image-file" accept="image/*" required onchange="handleImageBase64(event)" class="hidden" />
