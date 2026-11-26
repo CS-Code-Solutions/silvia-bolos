@@ -1,0 +1,106 @@
+/* ==========================================================================
+   SILVIA BOLOS - ESTILOS GLOBAIS
+   ========================================================================== */
+
+:root {
+  --bg-cream: #FFFDF9;
+  --rose-primary: #BE3E5B;
+  --rose-dark: #9D2F48;
+  --rose-soft: #FDF2F4;
+  --rose-border: #FCE7EB;
+  --choco-dark: #3B2823;
+  --choco-muted: #785B52;
+  --whatsapp: #25D366;
+  --whatsapp-dark: #1EBE5D;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-cream);
+  color: var(--choco-dark);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-serif-title {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF5EE;
+}
+::-webkit-scrollbar-thumb {
+  background: #E2C6C9;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rose-primary);
+}
+
+/* Pills selecionáveis (Recheios e Complementos) */
+.choice-pill {
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.choice-pill:hover {
+  border-color: #E8A6B4;
+}
+
+.choice-pill.active {
+  background-color: var(--rose-primary);
+  color: #FFFFFF;
+  border-color: var(--rose-primary);
+  box-shadow: 0 4px 12px rgba(190, 62, 91, 0.24);
+}
+
+/* Cartões de Tamanho */
+.size-card {
+  transition: all 0.18s ease;
+}
+
+.size-card:hover {
+  border-color: #E8A6B4;
+  transform: translateY(-1px);
+}
+
+.size-card.active {
+  background-color: var(--rose-soft);
+  border-color: var(--rose-primary);
+  box-shadow: 0 0 0 2px var(--rose-primary);
+}
+
+/* Gaveta Lateral do Carrinho */
+.cart-backdrop {
+  transition: opacity 0.25s ease;
+}
+
+.cart-drawer {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Animação suave de Toast */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.toast-animate {
+  animation: slideUpFade 0.25s ease forwards;
+}
