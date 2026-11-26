@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Silvia Bolos — Confeitaria Artesanal & Encomendas</title>
+  <meta name="description" content="Monte seu bolo personalizado ou escolha nossas opções artesanais na Silvia Bolos e faça sua encomenda direto pelo WhatsApp." />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fontes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Ícones Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Estilos Globais -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-30 bg-[#FFFDF9]/95 backdrop-blur-md border-b border-[#F2E6D8]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-18 py-3 flex items-center justify-between gap-3">
+      <!-- Logo -->
+      <a href="index.html" class="flex items-center gap-3 group">
+        <div class="w-11 h-11 rounded-2xl bg-[#BE3E5B] text-white flex items-center justify-center shadow-md shadow-[#BE3E5B]/20 group-hover:scale-105 transition-transform">
+          <i data-lucide="cake-slice" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="font-serif-title text-xl font-bold text-[#3B2823] leading-none block">Silvia Bolos</span>
+          <span class="text-[11px] uppercase tracking-widest text-[#9C7B70] font-semibold">Confeitaria Artesanal</span>
+        </div>
+      </a>
+
+      <!-- Ações -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a href="admin.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold border border-[#E6D5C3] text-[#6B4F46] hover:bg-[#FAF3EB] transition">
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+          <span>Área Admin</span>
+        </a>
+
+        <button onclick="openCart()" class="relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-[#BE3E5B] text-white hover:bg-[#9D2F48] shadow-md shadow-[#BE3E5B]/20 transition cursor-pointer">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Encomenda</span>
+          <span id="cart-badge" class="bg-white text-[#BE3E5B] text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= BANNER HERO ================= -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-[#FDF2F4] via-[#FFF9F2] to-[#FBE8EC] border-b border-[#F3E3DC]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14 grid md:grid-cols-12 gap-8 items-center">
+      <div class="md:col-span-7 space-y-4">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 border border-[#F3D1D8] text-[#BE3E5B] text-xs font-semibold">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          Feito sob encomenda com carinho
+        </span>
+        <h1 class="font-serif-title text-3xl sm:text-5xl font-bold text-[#3B2823] leading-tight">
+          O bolo perfeito para celebrar seus melhores momentos.
+        </h1>
+        <p class="text-sm sm:text-base text-[#6D524A] max-w-xl leading-relaxed">
+          Escolha o tamanho ideal em fatias, combine seus recheios e complementos favoritos e envie seu pedido pronto direto para o nosso WhatsApp.
+        </p>
+        <div class="pt-2 flex flex-wrap gap-3">
+          <a href="#montar-bolo" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#BE3E5B] text-white font-semibold text-sm hover:bg-[#9D2F48] shadow-lg shadow-[#BE3E5B]/25 transition">
+            <i data-lucide="wand-2" class="w-4 h-4"></i>
+            Montar Meu Bolo
+          </a>
+          <a href="#vitrine-bolos" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white text-[#3B2823] border border-[#E5D3C5] font-semibold text-sm hover:bg-[#FAF4ED] transition">
+            Ver Sabores da Vitrine
+          </a>
+        </div>
+      </div>
+
+      <div class="md:col-span-5">
+        <div class="relative rounded-3xl overflow-hidden shadow-xl border-4 border-white aspect-[4/3]">
+          <img
+            src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80"
+            alt="Bolo artesanal decorado Silvia Bolos"
+            class="w-full h-full object-cover"
+          />
+          <div class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-sm rounded-2xl p-3.5 shadow-md flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-[#3B2823]">A partir de R$ 30,00</p>
+              <p class="text-[11px] text-[#7D6158]">12 até 60 fatias • Redondo ou Quadrado</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-[#E8F8EE] text-[#17803D] text-[11px] font-bold">
+              Via WhatsApp
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTEÚDO PRINCIPAL ================= -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-10 space-y-16">
+
+    <!-- SEÇÃO 1: MONTADOR DE BOLO PERSONALIZADO -->
+    <section id="montar-bolo" class="scroll-mt-24">
+      <div class="mb-6">
+        <span class="text-xs font-bold uppercase tracking-wider text-[#BE3E5B]">Personalize do seu jeito</span>
+        <h2 class="font-serif-title text-2xl sm:text-3xl font-bold text-[#3B2823] mt-1">Monte sua Encomenda</h2>
+        <p class="text-sm text-[#785B52] mt-1">Selecione o tamanho, recheios, complementos e detalhes da decoração.</p>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-8 items-start">
+        <!-- Coluna de Opções -->
+        <div class="lg:col-span-8 space-y-8 bg-white p-5 sm:p-7 rounded-3xl border border-[#EFE2D6] shadow-sm">
+
+          <!-- Passo 1: Tamanho e Formato -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-sm font-bold text-[#3B2823] flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-[#BE3E5B] text-white text-xs flex items-center justify-center">1</span>
+                Escolha o Tamanho e Formato
+              </label>
+              <span class="text-xs text-[#9C7B70]">Obrigatório</span>
+            </div>
+            <div id="sizes-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <!-- Preenchido via JS -->
+            </div>
+          </div>
+
+          <hr class="border-[#F5EAE0]" />
+
+          <!-- Passo 2: Recheios -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-sm font-bold text-[#3B2823] flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-[#BE3E5B] text-white text-xs flex items-center justify-center">2</span>
+                Escolha os Recheios
+              </label>
+              <span class="text-xs text-[#9C7B70]">Pode marcar mais de um</span>
+            </div>
+            <div id="fillings-list" class="flex flex-wrap gap-2">
+              <!-- Preenchido via JS -->
+            </div>
+          </div>
+
+          <hr class="border-[#F5EAE0]" />
+
+          <!-- Passo 3: Complementos -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-sm font-bold text-[#3B2823] flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-[#BE3E5B] text-white text-xs flex items-center justify-center">3</span>
+                Complementos (Opcional)
+              </label>
+              <span class="text-xs text-[#9C7B70]">Frutas e chocolates</span>
+            </div>
+            <div id="toppings-list" class="flex flex-wrap gap-2">
+              <!-- Preenchido via JS -->
+            </div>
+          </div>
+
+          <hr class="border-[#F5EAE0]" />
+
+          <!-- Passo 4: Decoração e Público -->
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label for="builder-decor" class="block text-sm font-bold text-[#3B2823] mb-2">
+                <span class="inline-flex w-6 h-6 rounded-full bg-[#BE3E5B] text-white text-xs items-center justify-center mr-1.5">4</span>
+                Cor / Decoração
+              </label>
+              <input
+                type="text"
+                id="builder-decor"
+                oninput="updateBuilderSummary()"
+                placeholder="Ex: Branco com detalhes dourados, tema floral..."
+                class="w-full px-4 py-2.5 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]"
+              />
+              <p class="text-[11px] text-[#8A6D64] mt-1.5 flex items-center gap-1">
+                <i data-lucide="camera" class="w-3.5 h-3.5 text-[#BE3E5B] shrink-0"></i>
+                Foto de inspiração poderá ser enviada direto no WhatsApp.
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold text-[#3B2823] mb-2">
+                Público da Festa
+              </label>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="btn-audience-adulto" onclick="selectAudience('Adulto')" class="choice-pill active py-2.5 px-3 rounded-xl border border-[#E4D3C3] text-sm font-semibold cursor-pointer">
+                  Adulto
+                </button>
+                <button type="button" id="btn-audience-crianca" onclick="selectAudience('Criança')" class="choice-pill py-2.5 px-3 rounded-xl border border-[#E4D3C3] text-sm font-semibold cursor-pointer">
+                  Criança
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna de Resumo do Bolo Montado -->
+        <div class="lg:col-span-4 bg-white p-6 rounded-3xl border border-[#EFE2D6] shadow-sm sticky top-24 space-y-5">
+          <div class="flex items-center justify-between border-b border-[#F5EAE0] pb-3">
+            <h3 class="font-serif-title text-lg font-bold text-[#3B2823]">Resumo do seu Bolo</h3>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#FDF2F4] text-[#BE3E5B]">Personalizado</span>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <div>
+              <span class="text-xs text-[#9C7B70] block">Tamanho selecionado</span>
+              <p id="summary-size" class="font-semibold text-[#3B2823]">12 fatias redondo</p>
+            </div>
+            <div>
+              <span class="text-xs text-[#9C7B70] block">Recheios</span>
+              <p id="summary-fillings" class="font-medium text-[#3B2823]">Nenhum selecionado</p>
+            </div>
+            <div>
+              <span class="text-xs text-[#9C7B70] block">Complementos</span>
+              <p id="summary-toppings" class="font-medium text-[#3B2823]">Nenhum</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <div>
+                <span class="text-xs text-[#9C7B70] block">Decoração</span>
+                <p id="summary-decor" class="font-medium text-[#3B2823] truncate">A combinar</p>
+              </div>
+              <div>
+                <span class="text-xs text-[#9C7B70] block">Público</span>
+                <p id="summary-audience" class="font-medium text-[#3B2823]">Adulto</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-[#F5EAE0] flex items-baseline justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-[#8A6D64]">Valor do Bolo</span>
+            <span id="summary-price" class="font-serif-title text-2xl font-bold text-[#BE3E5B]">R$ 30,00</span>
+          </div>
+
+          <button type="button" onclick="addCustomCakeToCart()" class="w-full py-3.5 px-5 rounded-2xl bg-[#BE3E5B] hover:bg-[#9D2F48] text-white font-bold text-sm shadow-lg shadow-[#BE3E5B]/25 flex items-center justify-center gap-2 transition cursor-pointer">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            Adicionar à Encomenda
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 2: VITRINE DE BOLOS PRONTOS / SUGESTÕES -->
+    <section id="vitrine-bolos" class="scroll-mt-24">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#BE3E5B]">Sugestões da Confeitaria</span>
+          <h2 class="font-serif-title text-2xl sm:text-3xl font-bold text-[#3B2823] mt-1">Vitrine Silvia Bolos</h2>
+          <p class="text-sm text-[#785B52] mt-1">Combinações queridinhas prontas para adicionar ao seu pedido.</p>
+        </div>
+      </div>
+
+      <div id="showcase-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Cards preenchidos via JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-white border-t border-[#EFE2D6] mt-16 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <div class="flex flex-col sm:flex-row items-center gap-3">
+        <p class="font-serif-title font-bold text-[#3B2823] text-lg">Silvia Bolos</p>
+        <a
+          href="https://wa.me/555192032068?text=Ol%C3%A1%20Silvia!%20Vim%20pelo%20site%20e%20gostaria%20de%20fazer%20uma%20encomenda%20de%20bolo."
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold shadow-sm transition"
+        >
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          Falar no WhatsApp
+        </a>
+      </div>
+
+      <a
+        href="https://www.instagram.com/cs_code_solutions?exln=Ym1mNDMzYTYxa3d6"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-1.5 text-xs font-medium text-[#785B52] hover:text-[#BE3E5B] transition px-3 py-1.5 rounded-full bg-[#FAF5EE] border border-[#EFE2D6]"
+      >
+        <span>Powered by <strong class="text-[#3B2823]">CS Code Solutions</strong></span>
+        <i data-lucide="external-link" class="w-3 h-3"></i>
+      </a>
+    </div>
+  </footer>
+
+  <!-- ================= GAVETA DO CARRINHO (ENCOMENDA WHATSAPP) ================= -->
+  <div id="cart-backdrop" onclick="closeCart()" class="fixed inset-0 bg-black/45 backdrop-blur-xs z-40 hidden opacity-0 cart-backdrop"></div>
+
+  <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-[#FFFDF9] z-50 shadow-2xl translate-x-full cart-drawer flex flex-col">
+    <!-- Cabeçalho Gaveta -->
+    <div class="px-5 py-4 bg-white border-b border-[#EFE2D6] flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-[#FDF2F4] text-[#BE3E5B] flex items-center justify-center">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-serif-title font-bold text-lg text-[#3B2823] leading-none">Sua Encomenda</h3>
+          <span class="text-[11px] text-[#8A6D64]">Silvia Bolos • WhatsApp</span>
+        </div>
+      </div>
+      <button onclick="closeCart()" class="p-2 rounded-full hover:bg-[#FAF3EB] text-[#6B4F46] cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Corpo Rolável -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-6">
+      <!-- Lista de Bolos no Carrinho -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-[#8A6D64] mb-2.5">Itens Selecionados</h4>
+        <div id="cart-items-container" class="space-y-2.5">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+
+      <!-- Formulário de Dados do Cliente -->
+      <div id="checkout-form-section" class="space-y-3.5 bg-white p-4 rounded-2xl border border-[#EFE2D6]">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-[#3B2823]">Dados para Retirada</h4>
+          <span class="text-[11px] text-[#BE3E5B] font-medium">* Obrigatório</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#5C433B] mb-1">Seu Nome *</label>
+          <input type="text" id="order-name" oninput="refreshWhatsAppPreview()" placeholder="Digite seu nome completo" class="w-full px-3.5 py-2 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-semibold text-[#5C433B] mb-1">Data de Retirada *</label>
+            <input type="date" id="order-date" onchange="refreshWhatsAppPreview()" class="w-full px-3 py-2 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-[#5C433B] mb-1">Horário *</label>
+            <input type="time" id="order-time" onchange="refreshWhatsAppPreview()" class="w-full px-3 py-2 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#5C433B] mb-1">Forma de Pagamento *</label>
+          <select id="order-payment" onchange="refreshWhatsAppPreview()" class="w-full px-3.5 py-2 rounded-xl border border-[#E4D3C3] text-sm bg-white focus:outline-none focus:border-[#BE3E5B]">
+            <option value="Pix">Pix</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Cartão de Débito">Cartão de Débito</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+          </select>
+        </div>
+
+        <p class="text-[11px] text-[#8A6D64] italic text-center pt-1">
+          * Preencher tudo para melhor atendê-lo 😊
+        </p>
+      </div>
+
+      <!-- Lembrete de Foto de Inspiração + Prévia da Mensagem -->
+      <div id="whatsapp-preview-box" class="bg-[#F2FBF5] border border-[#CBEED6] rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-[#166534] flex items-center gap-1.5">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            Mensagem pronta para WhatsApp
+          </span>
+          <button type="button" onclick="copyOrderText()" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white border border-[#CBEED6] text-[#166534] hover:bg-[#E7F8ED] cursor-pointer">
+            Copiar Texto
+          </button>
+        </div>
+
+        <!-- Lembrete Foto de Inspiração -->
+        <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-xl p-2.5 flex items-start gap-2 text-[#92400E]">
+          <span class="text-sm leading-none mt-0.5">📸</span>
+          <p class="text-[11px] leading-relaxed">
+            <strong>Tem uma foto de inspiração?</strong> Assim que a conversa no WhatsApp abrir, encaminhe a imagem junto com esta mensagem!
+          </p>
+        </div>
+
+        <pre id="whatsapp-message-preview" class="text-[11px] leading-relaxed text-[#2C3E32] whitespace-pre-wrap font-sans bg-white/80 p-3 rounded-xl border border-[#DCF3E3] max-h-44 overflow-y-auto"></pre>
+      </div>
+    </div>
+
+    <!-- Rodapé Fixo Gaveta -->
+    <div class="p-5 bg-white border-t border-[#EFE2D6] space-y-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-[#785B52]">Total Estimado</span>
+        <span id="cart-total" class="font-serif-title text-2xl font-bold text-[#3B2823]">R$ 0,00</span>
+      </div>
+
+      <button type="button" onclick="sendOrderToWhatsApp()" class="w-full py-3.5 px-5 rounded-2xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-sm shadow-lg shadow-[#25D366]/25 flex items-center justify-center gap-2 transition cursor-pointer">
+        <i data-lucide="send" class="w-4 h-4"></i>
+        Finalizar Encomenda no WhatsApp
+      </button>
+    </div>
+  </aside>
+
+  <!-- Toast de Notificação -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden bg-[#3B2823] text-white text-xs font-semibold px-4 py-3 rounded-full shadow-xl items-center gap-2 toast-animate">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-[#4ADE80]"></i>
+    <span id="toast-text">Item adicionado!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
