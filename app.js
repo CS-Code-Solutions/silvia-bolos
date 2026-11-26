@@ -2,39 +2,32 @@
    SILVIA BOLOS - LÓGICA DA VITRINE, CARRINHO WHATSAPP E PAINEL ADMIN
    ========================================================================== */
 
-// Cole aqui os dados do seu projeto Firebase assim que criar
+// Configuração do Firebase
 const FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyAcxCipS6-6WTVO0cWPuDO1F3DkGRWpI4E",
+  authDomain: "batato-ec659.firebaseapp.com",
+  projectId: "batato-ec659",
+  storageBucket: "batato-ec659.firebasestorage.app",
+  messagingSenderId: "367636863162",
+  appId: "1:367636863162:web:91be711688c992f0350a83"
 };
 
-// Configurações da Loja
+// Configurações da Loja (Coleção exclusiva para não conflitar com outro projeto)
 const STORE_CONFIG = {
   whatsappNumber: "555192032068", // +55 51 9203-2068
-  storageProductsKey: "silvia_bolos_products_v1",
+  firestoreCollection: "silvia_bolos_produtos",
   storageCartKey: "silvia_bolos_cart_v1"
 };
 
-let firebaseAuthInstance = null;
-
-function initFirebaseAuthIfReady() {
-  if (
-    window.firebase &&
-    FIREBASE_CONFIG.apiKey &&
-    FIREBASE_CONFIG.projectId
-  ) {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG);
-    }
-    firebaseAuthInstance = firebase.auth();
-    return true;
-  }
-  return false;
+// Inicialização do Firebase
+if (!firebase.apps.length) {
+  firebase.initializeApp(FIREBASE_CONFIG);
 }
+const db = firebase.firestore();
+const auth = firebase.auth ? firebase.auth() : null;
+
+// Cache local dos produtos carregados do Firestore
+let cachedProducts = [];
 
 // Tabela Oficial de Tamanhos e Preços
 const CAKE_SIZES = [
@@ -71,31 +64,6 @@ const TOPPINGS = [
   "Lasca de chocolate"
 ];
 
-// Produtos Iniciais da Vitrine
-const DEFAULT_PRODUCTS = [
-  {
-    id: "prod-1",
-    name: "Bolo Doce de Leite com Coco",
-    filling: "Doce de leite cremoso com coco ralado úmido e cobertura delicada de chantilly.",
-    sizeIndex: 2,
-    imageBase64: "https://images.unsplash.com/photo-1535141192574-5d4897c12636?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: "prod-2",
-    name: "Bolo Dois Amores com Morango",
-    filling: "Brigadeiro tradicional, branquinho cremoso e pedaços frescos de morango.",
-    sizeIndex: 3,
-    imageBase64: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=800&q=80"
-  },
-  {
-    id: "prod-3",
-    name: "Bolo Nata com Pêssego e Bombom",
-    filling: "Nata batida leve, pêssegos em calda picados e pedaços de bombom.",
-    sizeIndex: 4,
-    imageBase64: "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?auto=format&fit=crop&w=800&q=80"
-  }
-];
-
 // Estado do Montador Personalizado
 let builderState = {
   sizeIndex: 0,
@@ -114,23 +82,6 @@ let currentUploadedBase64 = "";
 
 function formatBRL(value) {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-function getProducts() {
-  const saved = localStorage.getItem(STORE_CONFIG.storageProductsKey);
-  if (!saved) {
-    localStorage.setItem(STORE_CONFIG.storageProductsKey, JSON.stringify(DEFAULT_PRODUCTS));
-    return DEFAULT_PRODUCTS;
-  }
-  try {
-    return JSON.parse(saved);
-  } catch {
-    return DEFAULT_PRODUCTS;
-  }
-}
-
-function saveProducts(products) {
-  localStorage.setItem(STORE_CONFIG.storageProductsKey, JSON.stringify(products));
 }
 
 function getCart() {
@@ -163,6 +114,28 @@ function showToast(message) {
 }
 
 /* ==========================================================================
+   LEITURA EM TEMPO REAL DO FIRESTORE (COLEÇÃO EXCLUSIVA)
+   ========================================================================== */
+
+function subscribeProducts(onUpdateCallback) {
+  db.collection(STORE_CONFIG.firestoreCollection)
+    .orderBy("createdAt", "desc")
+    .onSnapshot(
+      (snapshot) => {
+        cachedProducts = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        if (onUpdateCallback) onUpdateCallback(cachedProducts);
+      },
+      (error) => {
+        console.error("Erro ao carregar produtos do Firestore:", error);
+        if (onUpdateCallback) onUpdateCallback([]);
+      }
+    );
+}
+
+/* ==========================================================================
    INICIALIZAÇÃO AUTOMÁTICA DA PÁGINA
    ========================================================================== */
 
@@ -170,9 +143,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("sizes-grid")) {
     renderBuilderOptions();
     updateBuilderSummary();
-    renderShowcase();
     updateCartBadge();
     renderCartDrawer();
+    renderShowcaseLoading();
+    subscribeProducts(renderShowcase);
   }
 
   if (document.getElementById("admin-login-view")) {
@@ -310,11 +284,29 @@ function addCustomCakeToCart() {
   openCart();
 }
 
-function renderShowcase() {
+function renderShowcaseLoading() {
+  const grid = document.getElementById("showcase-grid");
+  if (!grid) return;
+  grid.innerHTML = `
+    <div class="col-span-full text-center py-10 text-xs text-[#8A6D64]">
+      Carregando bolos da vitrine...
+    </div>
+  `;
+}
+
+function renderShowcase(products) {
   const grid = document.getElementById("showcase-grid");
   if (!grid) return;
 
-  const products = getProducts();
+  if (!products || products.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full text-center py-10 px-4 bg-white rounded-3xl border border-dashed border-[#E4D3C3]">
+        <p class="text-sm font-semibold text-[#3B2823]">Em breve novidades na vitrine!</p>
+        <p class="text-xs text-[#8A6D64] mt-1">Você já pode montar seu bolo personalizado acima.</p>
+      </div>
+    `;
+    return;
+  }
 
   grid.innerHTML = products.map(prod => {
     const sizeObj = CAKE_SIZES[prod.sizeIndex] || CAKE_SIZES[0];
@@ -354,8 +346,7 @@ function renderShowcase() {
 }
 
 function addShowcaseProductToCart(productId) {
-  const products = getProducts();
-  const prod = products.find(p => p.id === productId);
+  const prod = cachedProducts.find(p => p.id === productId);
   if (!prod) return;
 
   const sizeObj = CAKE_SIZES[prod.sizeIndex] || CAKE_SIZES[0];
@@ -546,8 +537,10 @@ function sendOrderToWhatsApp() {
 }
 
 /* ==========================================================================
-   PAINEL ADMINISTRATIVO (ADMIN.HTML) - FIREBASE AUTH & BASE64
+   PAINEL ADMINISTRATIVO (ADMIN.HTML) - FIREBASE AUTH & FIRESTORE
    ========================================================================== */
+
+let adminSubscriptionStarted = false;
 
 function setAdminViewAuthenticated(isAuthenticated) {
   const loginView = document.getElementById("admin-login-view");
@@ -561,7 +554,11 @@ function setAdminViewAuthenticated(isAuthenticated) {
     dashView.classList.remove("hidden");
     btnLogout.classList.remove("hidden");
     populateAdminSizeSelect();
-    renderAdminProducts();
+
+    if (!adminSubscriptionStarted) {
+      adminSubscriptionStarted = true;
+      subscribeProducts(renderAdminProducts);
+    }
   } else {
     loginView.classList.remove("hidden");
     dashView.classList.add("hidden");
@@ -570,15 +567,10 @@ function setAdminViewAuthenticated(isAuthenticated) {
 }
 
 function initAdminPage() {
-  const firebaseReady = initFirebaseAuthIfReady();
-
-  if (firebaseReady && firebaseAuthInstance) {
-    firebaseAuthInstance.onAuthStateChanged((user) => {
-      setAdminViewAuthenticated(Boolean(user));
-    });
-  } else {
-    setAdminViewAuthenticated(false);
-  }
+  if (!auth) return;
+  auth.onAuthStateChanged((user) => {
+    setAdminViewAuthenticated(Boolean(user));
+  });
 }
 
 async function handleAdminLogin(event) {
@@ -588,21 +580,15 @@ async function handleAdminLogin(event) {
   const errorEl = document.getElementById("login-error");
   const submitBtn = document.getElementById("btn-login-submit");
 
-  if (!initFirebaseAuthIfReady() || !firebaseAuthInstance) {
-    errorEl.textContent = "Configure os dados do Firebase em FIREBASE_CONFIG no app.js antes de entrar.";
-    errorEl.classList.remove("hidden");
-    return;
-  }
-
   errorEl.classList.add("hidden");
   submitBtn.disabled = true;
   submitBtn.textContent = "Entrando...";
 
   try {
-    await firebaseAuthInstance.signInWithEmailAndPassword(email, pass);
+    await auth.signInWithEmailAndPassword(email, pass);
     showToast("Login realizado com sucesso!");
   } catch (err) {
-    errorEl.textContent = "E-mail ou senha inválidos no Firebase.";
+    errorEl.textContent = "E-mail ou senha inválidos.";
     errorEl.classList.remove("hidden");
   } finally {
     submitBtn.disabled = false;
@@ -611,8 +597,8 @@ async function handleAdminLogin(event) {
 }
 
 async function handleAdminLogout() {
-  if (firebaseAuthInstance) {
-    await firebaseAuthInstance.signOut();
+  if (auth) {
+    await auth.signOut();
   }
   setAdminViewAuthenticated(false);
 }
@@ -625,13 +611,11 @@ function populateAdminSizeSelect() {
   ).join("");
 }
 
-function renderAdminProducts() {
+function renderAdminProducts(products) {
   const container = document.getElementById("admin-products-list");
   if (!container) return;
 
-  const products = getProducts();
-
-  if (products.length === 0) {
+  if (!products || products.length === 0) {
     container.innerHTML = `
       <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-dashed border-[#E4D3C3]">
         <p class="text-sm font-semibold text-[#3B2823]">Nenhum bolo cadastrado na vitrine.</p>
@@ -697,6 +681,7 @@ function closeProductModal() {
   modal.classList.remove("flex");
 }
 
+// Converte e comprime imagem para Base64 (garantindo documento leve abaixo do limite de 1MB do Firestore)
 function handleImageBase64(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -714,7 +699,7 @@ function handleImageBase64(event) {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      currentUploadedBase64 = canvas.toDataURL("image/jpeg", 0.82);
+      currentUploadedBase64 = canvas.toDataURL("image/jpeg", 0.8);
 
       const preview = document.getElementById("prod-image-preview");
       const placeholder = document.getElementById("prod-upload-placeholder");
@@ -727,7 +712,7 @@ function handleImageBase64(event) {
   reader.readAsDataURL(file);
 }
 
-function saveNewProduct(event) {
+async function saveNewProduct(event) {
   event.preventDefault();
 
   if (!currentUploadedBase64) {
@@ -738,25 +723,37 @@ function saveNewProduct(event) {
   const name = document.getElementById("prod-name").value.trim();
   const filling = document.getElementById("prod-filling").value.trim();
   const sizeIndex = parseInt(document.getElementById("prod-size-index").value, 10) || 0;
+  const saveBtn = document.getElementById("btn-save-product");
 
-  const products = getProducts();
-  products.unshift({
-    id: "prod-" + Date.now(),
-    name,
-    filling,
-    sizeIndex,
-    imageBase64: currentUploadedBase64
-  });
+  saveBtn.disabled = true;
+  saveBtn.textContent = "Salvando...";
 
-  saveProducts(products);
-  renderAdminProducts();
-  closeProductModal();
-  showToast("Novo bolo adicionado à vitrine!");
+  try {
+    await db.collection(STORE_CONFIG.firestoreCollection).add({
+      name,
+      filling,
+      sizeIndex,
+      imageBase64: currentUploadedBase64,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    closeProductModal();
+    showToast("Novo bolo salvo na nuvem!");
+  } catch (err) {
+    console.error("Erro ao salvar bolo:", err);
+    showToast("Erro ao salvar. Verifique as regras do Firestore.");
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Salvar na Vitrine";
+  }
 }
 
-function deleteAdminProduct(id) {
-  const products = getProducts().filter(p => p.id !== id);
-  saveProducts(products);
-  renderAdminProducts();
-  showToast("Produto removido da vitrine.");
+async function deleteAdminProduct(id) {
+  try {
+    await db.collection(STORE_CONFIG.firestoreCollection).doc(id).delete();
+    showToast("Produto removido da vitrine.");
+  } catch (err) {
+    console.error("Erro ao remover bolo:", err);
+    showToast("Erro ao remover produto.");
+  }
 }
