@@ -2,7 +2,6 @@
    SILVIA BOLOS - LÓGICA DA VITRINE, CARRINHO WHATSAPP E PAINEL ADMIN
    ========================================================================== */
 
-// Configuração do Firebase
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAcxCipS6-6WTVO0cWPuDO1F3DkGRWpI4E",
   authDomain: "batato-ec659.firebaseapp.com",
@@ -12,9 +11,8 @@ const FIREBASE_CONFIG = {
   appId: "1:367636863162:web:91be711688c992f0350a83"
 };
 
-// Configurações da Loja (Coleção exclusiva para não conflitar com outro projeto)
 const STORE_CONFIG = {
-  whatsappNumber: "555192032068", // +55 51 9203-2068
+  whatsappNumber: "555192032068",
   firestoreCollection: "silvia_bolos_produtos",
   bannerCollection: "silvia_bolos_banner",
   bannerDocId: "topo",
@@ -26,19 +24,17 @@ const DEFAULT_BANNER = {
   imageBase64: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1400&q=80"
 };
 
-// Inicialização do Firebase
 if (!firebase.apps.length) {
   firebase.initializeApp(FIREBASE_CONFIG);
 }
 const db = firebase.firestore();
 const auth = firebase.auth ? firebase.auth() : null;
 
-// Cache local dos produtos e banner
 let cachedProducts = [];
 let cachedBanner = { ...DEFAULT_BANNER };
 let currentUploadedBannerBase64 = "";
+let currentUploadedBase64 = "";
 
-// Tabela Oficial de Tamanhos e Preços
 const CAKE_SIZES = [
   { id: "12-red", label: "12 fatias redondo", price: 30.00 },
   { id: "15-comp", label: "15 fatias comprido", price: 70.00 },
@@ -51,7 +47,6 @@ const CAKE_SIZES = [
   { id: "60-quad", label: "60 fatias quadrado", price: 145.00 }
 ];
 
-// Lista Oficial de Recheios
 const FILLINGS = [
   "Pavê",
   "Nata",
@@ -63,7 +58,6 @@ const FILLINGS = [
   "Doce de leite"
 ];
 
-// Lista Oficial de Complementos
 const TOPPINGS = [
   "Morango",
   "Abacaxi",
@@ -73,7 +67,6 @@ const TOPPINGS = [
   "Lasca de chocolate"
 ];
 
-// Estado do Montador Personalizado
 let builderState = {
   sizeIndex: 0,
   fillings: [],
@@ -81,13 +74,6 @@ let builderState = {
   decor: "",
   audience: "Adulto"
 };
-
-// Base64 temporário no modal de produto do Admin
-let currentUploadedBase64 = "";
-
-/* ==========================================================================
-   UTILITÁRIOS DE DADOS & FORMATAÇÃO
-   ========================================================================== */
 
 function formatBRL(value) {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -121,10 +107,6 @@ function showToast(message) {
     toast.classList.remove("flex");
   }, 2800);
 }
-
-/* ==========================================================================
-   LEITURA EM TEMPO REAL DO FIRESTORE (PRODUTOS & BANNER)
-   ========================================================================== */
 
 function subscribeProducts(onUpdateCallback) {
   db.collection(STORE_CONFIG.firestoreCollection)
@@ -178,10 +160,6 @@ function applyBannerToPage(bannerData) {
   }
 }
 
-/* ==========================================================================
-   INICIALIZAÇÃO AUTOMÁTICA DA PÁGINA
-   ========================================================================== */
-
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("sizes-grid")) {
     subscribeBanner();
@@ -196,16 +174,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("admin-login-view")) {
     subscribeBanner();
     initAdminPage();
+    const editBannerBtn = document.getElementById("btn-edit-banner");
+    if (editBannerBtn) {
+      editBannerBtn.addEventListener("click", openBannerModal);
+    }
   }
 
   if (window.lucide) {
     lucide.createIcons();
   }
 });
-
-/* ==========================================================================
-   LÓGICA DA VITRINE E MONTADOR (INDEX.HTML)
-   ========================================================================== */
 
 function renderBuilderOptions() {
   const sizesGrid = document.getElementById("sizes-grid");
@@ -414,10 +392,6 @@ function addShowcaseProductToCart(productId) {
   openCart();
 }
 
-/* ==========================================================================
-   CARRINHO E CHECKOUT WHATSAPP
-   ========================================================================== */
-
 function updateCartBadge() {
   const badge = document.getElementById("cart-badge");
   if (!badge) return;
@@ -582,7 +556,7 @@ function sendOrderToWhatsApp() {
 }
 
 /* ==========================================================================
-   PAINEL ADMINISTRATIVO (ADMIN.HTML) - FIREBASE AUTH & FIRESTORE
+   PAINEL ADMINISTRATIVO (ADMIN.HTML)
    ========================================================================== */
 
 let adminSubscriptionStarted = false;
@@ -648,32 +622,39 @@ async function handleAdminLogout() {
   setAdminViewAuthenticated(false);
 }
 
-/* --- Modal Editar Banner --- */
 function openBannerModal() {
   const modal = document.getElementById("banner-modal");
-  currentUploadedBannerBase64 = cachedBanner.imageBase64 || DEFAULT_BANNER.imageBase64;
-  document.getElementById("banner-title-input").value = cachedBanner.title || DEFAULT_BANNER.title;
-  document.getElementById("banner-image-file").value = "";
+  if (!modal) return;
 
+  currentUploadedBannerBase64 = cachedBanner.imageBase64 || DEFAULT_BANNER.imageBase64;
+  const titleInput = document.getElementById("banner-title-input");
+  const fileInput = document.getElementById("banner-image-file");
   const preview = document.getElementById("banner-image-preview");
   const placeholder = document.getElementById("banner-upload-placeholder");
 
-  if (currentUploadedBannerBase64) {
-    preview.src = currentUploadedBannerBase64;
-    preview.classList.remove("hidden");
-    placeholder.classList.add("hidden");
-  } else {
-    preview.src = "";
-    preview.classList.add("hidden");
-    placeholder.classList.remove("hidden");
+  if (titleInput) titleInput.value = cachedBanner.title || DEFAULT_BANNER.title;
+  if (fileInput) fileInput.value = "";
+
+  if (preview && placeholder) {
+    if (currentUploadedBannerBase64) {
+      preview.src = currentUploadedBannerBase64;
+      preview.classList.remove("hidden");
+      placeholder.classList.add("hidden");
+    } else {
+      preview.src = "";
+      preview.classList.add("hidden");
+      placeholder.classList.remove("hidden");
+    }
   }
 
   modal.classList.remove("hidden");
   modal.classList.add("flex");
+  if (window.lucide) lucide.createIcons();
 }
 
 function closeBannerModal() {
   const modal = document.getElementById("banner-modal");
+  if (!modal) return;
   modal.classList.add("hidden");
   modal.classList.remove("flex");
 }
@@ -739,7 +720,6 @@ async function saveBannerConfig(event) {
   }
 }
 
-/* --- Produtos --- */
 function populateAdminSizeSelect() {
   const select = document.getElementById("prod-size-index");
   if (!select) return;
