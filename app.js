@@ -2,15 +2,39 @@
    SILVIA BOLOS - LÓGICA DA VITRINE, CARRINHO WHATSAPP E PAINEL ADMIN
    ========================================================================== */
 
-// Configurações da Loja e Credenciais Admin
+// Cole aqui os dados do seu projeto Firebase assim que criar
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+
+// Configurações da Loja
 const STORE_CONFIG = {
   whatsappNumber: "555192032068", // +55 51 9203-2068
-  adminUser: "admin",
-  adminPass: "silvia2026",
   storageProductsKey: "silvia_bolos_products_v1",
-  storageCartKey: "silvia_bolos_cart_v1",
-  sessionAuthKey: "silvia_bolos_admin_logged"
+  storageCartKey: "silvia_bolos_cart_v1"
 };
+
+let firebaseAuthInstance = null;
+
+function initFirebaseAuthIfReady() {
+  if (
+    window.firebase &&
+    FIREBASE_CONFIG.apiKey &&
+    FIREBASE_CONFIG.projectId
+  ) {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+    }
+    firebaseAuthInstance = firebase.auth();
+    return true;
+  }
+  return false;
+}
 
 // Tabela Oficial de Tamanhos e Preços
 const CAKE_SIZES = [
@@ -47,7 +71,7 @@ const TOPPINGS = [
   "Lasca de chocolate"
 ];
 
-// Produtos Iniciais da Vitrine (caso o admin ainda não tenha cadastrado)
+// Produtos Iniciais da Vitrine
 const DEFAULT_PRODUCTS = [
   {
     id: "prod-1",
@@ -143,7 +167,6 @@ function showToast(message) {
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Detecta se está na Vitrine (index.html)
   if (document.getElementById("sizes-grid")) {
     renderBuilderOptions();
     updateBuilderSummary();
@@ -152,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCartDrawer();
   }
 
-  // Detecta se está no Painel Admin (admin.html)
   if (document.getElementById("admin-login-view")) {
     initAdminPage();
   }
@@ -167,7 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
    ========================================================================== */
 
 function renderBuilderOptions() {
-  // 1. Tamanhos
   const sizesGrid = document.getElementById("sizes-grid");
   sizesGrid.innerHTML = CAKE_SIZES.map((item, index) => `
     <button
@@ -180,7 +201,6 @@ function renderBuilderOptions() {
     </button>
   `).join("");
 
-  // 2. Recheios
   const fillingsList = document.getElementById("fillings-list");
   fillingsList.innerHTML = FILLINGS.map(filling => {
     const isSelected = builderState.fillings.includes(filling);
@@ -195,7 +215,6 @@ function renderBuilderOptions() {
     `;
   }).join("");
 
-  // 3. Complementos
   const toppingsList = document.getElementById("toppings-list");
   toppingsList.innerHTML = TOPPINGS.map(topping => {
     const isSelected = builderState.toppings.includes(topping);
@@ -527,16 +546,17 @@ function sendOrderToWhatsApp() {
 }
 
 /* ==========================================================================
-   PAINEL ADMINISTRATIVO (ADMIN.HTML) - LOGIN & BASE64
+   PAINEL ADMINISTRATIVO (ADMIN.HTML) - FIREBASE AUTH & BASE64
    ========================================================================== */
 
-function initAdminPage() {
-  const isLogged = sessionStorage.getItem(STORE_CONFIG.sessionAuthKey) === "true";
+function setAdminViewAuthenticated(isAuthenticated) {
   const loginView = document.getElementById("admin-login-view");
   const dashView = document.getElementById("admin-dashboard-view");
   const btnLogout = document.getElementById("btn-logout");
 
-  if (isLogged) {
+  if (!loginView || !dashView || !btnLogout) return;
+
+  if (isAuthenticated) {
     loginView.classList.add("hidden");
     dashView.classList.remove("hidden");
     btnLogout.classList.remove("hidden");
@@ -549,25 +569,52 @@ function initAdminPage() {
   }
 }
 
-function handleAdminLogin(event) {
-  event.preventDefault();
-  const user = document.getElementById("login-user").value.trim();
-  const pass = document.getElementById("login-pass").value;
-  const errorEl = document.getElementById("login-error");
+function initAdminPage() {
+  const firebaseReady = initFirebaseAuthIfReady();
 
-  if (user === STORE_CONFIG.adminUser && pass === STORE_CONFIG.adminPass) {
-    sessionStorage.setItem(STORE_CONFIG.sessionAuthKey, "true");
-    errorEl.classList.add("hidden");
-    initAdminPage();
-    showToast("Bem-vinda, Silvia!");
+  if (firebaseReady && firebaseAuthInstance) {
+    firebaseAuthInstance.onAuthStateChanged((user) => {
+      setAdminViewAuthenticated(Boolean(user));
+    });
   } else {
-    errorEl.classList.remove("hidden");
+    setAdminViewAuthenticated(false);
   }
 }
 
-function handleAdminLogout() {
-  sessionStorage.removeItem(STORE_CONFIG.sessionAuthKey);
-  initAdminPage();
+async function handleAdminLogin(event) {
+  event.preventDefault();
+  const email = document.getElementById("login-email").value.trim();
+  const pass = document.getElementById("login-pass").value;
+  const errorEl = document.getElementById("login-error");
+  const submitBtn = document.getElementById("btn-login-submit");
+
+  if (!initFirebaseAuthIfReady() || !firebaseAuthInstance) {
+    errorEl.textContent = "Configure os dados do Firebase em FIREBASE_CONFIG no app.js antes de entrar.";
+    errorEl.classList.remove("hidden");
+    return;
+  }
+
+  errorEl.classList.add("hidden");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Entrando...";
+
+  try {
+    await firebaseAuthInstance.signInWithEmailAndPassword(email, pass);
+    showToast("Login realizado com sucesso!");
+  } catch (err) {
+    errorEl.textContent = "E-mail ou senha inválidos no Firebase.";
+    errorEl.classList.remove("hidden");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Entrar no Painel";
+  }
+}
+
+async function handleAdminLogout() {
+  if (firebaseAuthInstance) {
+    await firebaseAuthInstance.signOut();
+  }
+  setAdminViewAuthenticated(false);
 }
 
 function populateAdminSizeSelect() {
@@ -650,7 +697,6 @@ function closeProductModal() {
   modal.classList.remove("flex");
 }
 
-// Converte e comprime imagem para Base64 (evita estourar limite do localStorage)
 function handleImageBase64(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -668,7 +714,6 @@ function handleImageBase64(event) {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      // Exporta em Base64 JPEG otimizado
       currentUploadedBase64 = canvas.toDataURL("image/jpeg", 0.82);
 
       const preview = document.getElementById("prod-image-preview");
