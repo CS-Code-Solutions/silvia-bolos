@@ -38,7 +38,7 @@
 
       <!-- Ação Carrinho -->
       <div class="flex items-center gap-2 shrink-0">
-        <button onclick="openCart()" class="relative inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#BE3E5B] text-white hover:bg-[#9D2F48] shadow-sm transition cursor-pointer whitespace-nowrap">
+        <button type="button" onclick="openCart()" class="relative inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#BE3E5B] text-white hover:bg-[#9D2F48] shadow-sm transition cursor-pointer whitespace-nowrap">
           <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
           <span>Encomenda</span>
           <span id="cart-badge" class="bg-white text-[#BE3E5B] text-[11px] font-bold px-1.5 py-0.5 rounded-full leading-none">0</span>
@@ -288,7 +288,7 @@
           <span class="text-[11px] text-[#8A6D64]">Silvia Bolos • WhatsApp</span>
         </div>
       </div>
-      <button onclick="closeCart()" class="p-2 rounded-full hover:bg-[#FAF3EB] text-[#6B4F46] cursor-pointer">
+      <button type="button" onclick="closeCart()" class="p-2 rounded-full hover:bg-[#FAF3EB] text-[#6B4F46] cursor-pointer">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
     </div>
@@ -322,7 +322,35 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-[#5C433B] mb-1">Horário *</label>
-            <input type="time" id="order-time" onchange="refreshWhatsAppPreview()" class="w-full px-3 py-2 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]" />
+            <select id="order-time" onchange="refreshWhatsAppPreview()" class="w-full px-3 py-2 rounded-xl border border-[#E4D3C3] text-sm bg-white focus:outline-none focus:border-[#BE3E5B]">
+              <option value="">Selecione</option>
+              <option value="08:00">08:00</option>
+              <option value="08:30">08:30</option>
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+              <option value="10:30">10:30</option>
+              <option value="11:00">11:00</option>
+              <option value="11:30">11:30</option>
+              <option value="12:00">12:00</option>
+              <option value="12:30">12:30</option>
+              <option value="13:00">13:00</option>
+              <option value="13:30">13:30</option>
+              <option value="14:00">14:00</option>
+              <option value="14:30">14:30</option>
+              <option value="15:00">15:00</option>
+              <option value="15:30">15:30</option>
+              <option value="16:00">16:00</option>
+              <option value="16:30">16:30</option>
+              <option value="17:00">17:00</option>
+              <option value="17:30">17:30</option>
+              <option value="18:00">18:00</option>
+              <option value="18:30">18:30</option>
+              <option value="19:00">19:00</option>
+              <option value="19:30">19:30</option>
+              <option value="20:00">20:00</option>
+              <option value="A combinar">A combinar</option>
+            </select>
           </div>
         </div>
 
@@ -390,6 +418,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <!-- Scripts -->
-  <script src="app.js"></script>
+  <script src="app.js?v=20261126"></script>
 </body>
 </html>
