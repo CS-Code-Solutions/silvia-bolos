@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Administrativo — Silvia Bolos</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fontes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Ícones Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Estilos Globais -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="min-h-screen flex flex-col bg-[#FFFDF9]">
+
+  <!-- ================= HEADER ADMIN ================= -->
+  <header class="bg-white border-b border-[#EFE2D6]">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-[#BE3E5B] text-white flex items-center justify-center shadow-sm">
+          <i data-lucide="cake-slice" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="font-serif-title text-lg font-bold text-[#3B2823] leading-none block">Silvia Bolos</span>
+          <span class="text-[11px] uppercase tracking-wider text-[#9C7B70] font-semibold">Gestão da Vitrine</span>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold border border-[#E6D5C3] text-[#6B4F46] hover:bg-[#FAF3EB] transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Voltar à Vitrine</span>
+        </a>
+
+        <button id="btn-logout" onclick="handleAdminLogout()" class="hidden inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold bg-[#FDF2F4] text-[#BE3E5B] hover:bg-[#FCE4E9] transition cursor-pointer">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span>Sair</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= TELA DE LOGIN ================= -->
+  <main id="admin-login-view" class="flex-1 flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-sm bg-white p-7 rounded-3xl border border-[#EFE2D6] shadow-lg space-y-6">
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 rounded-2xl bg-[#FDF2F4] text-[#BE3E5B] flex items-center justify-center mx-auto">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <h1 class="font-serif-title text-2xl font-bold text-[#3B2823]">Acesso Restrito</h1>
+        <p class="text-xs text-[#785B52]">Entre para gerenciar os bolos e fotos da vitrine.</p>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-[#5C433B] mb-1">Usuário</label>
+          <input type="text" id="login-user" required placeholder="Digite o usuário" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#5C433B] mb-1">Senha</label>
+          <input type="password" id="login-pass" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]" />
+        </div>
+
+        <p id="login-error" class="hidden text-xs text-red-600 font-semibold text-center bg-red-50 py-2 rounded-xl">
+          Usuário ou senha incorretos.
+        </p>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-[#BE3E5B] hover:bg-[#9D2F48] text-white font-bold text-sm shadow-md shadow-[#BE3E5B]/20 transition cursor-pointer">
+          Entrar no Painel
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- ================= DASHBOARD ADMIN ================= -->
+  <main id="admin-dashboard-view" class="hidden flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Topo do Painel -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-[#EFE2D6] shadow-sm">
+      <div>
+        <h2 class="font-serif-title text-2xl font-bold text-[#3B2823]">Bolos Cadastrados na Vitrine</h2>
+        <p class="text-xs sm:text-sm text-[#785B52] mt-1">
+          Adicione novos bolos com foto em Base64, nome e recheio para aparecerem imediatamente na página inicial.
+        </p>
+      </div>
+
+      <button onclick="openProductModal()" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#BE3E5B] hover:bg-[#9D2F48] text-white font-bold text-sm shadow-md shadow-[#BE3E5B]/20 transition cursor-pointer shrink-0">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span>Novo Produto</span>
+      </button>
+    </div>
+
+    <!-- Lista de Produtos -->
+    <div id="admin-products-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Renderizado via JS -->
+    </div>
+  </main>
+
+  <!-- ================= MODAL NOVO PRODUTO (BASE64) ================= -->
+  <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl border border-[#EFE2D6] shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-[#EFE2D6] flex items-center justify-between">
+        <h3 class="font-serif-title text-lg font-bold text-[#3B2823]">Adicionar Novo Bolo</h3>
+        <button onclick="closeProductModal()" class="p-1.5 rounded-full hover:bg-[#FAF3EB] text-[#6B4F46] cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="saveNewProduct(event)" class="p-6 space-y-4">
+        <!-- Upload Base64 -->
+        <div>
+          <label class="block text-xs font-bold text-[#3B2823] mb-1.5">Foto do Bolo (Upload Base64) *</label>
+          <label for="prod-image-file" class="flex flex-col items-center justify-center w-full h-40 rounded-2xl border-2 border-dashed border-[#E4D3C3] hover:border-[#BE3E5B] bg-[#FAF6F1] cursor-pointer overflow-hidden relative transition">
+            <img id="prod-image-preview" src="" alt="Prévia" class="hidden w-full h-full object-cover" />
+            <div id="prod-upload-placeholder" class="flex flex-col items-center text-center p-4">
+              <i data-lucide="image-plus" class="w-7 h-7 text-[#BE3E5B] mb-1.5"></i>
+              <span class="text-xs font-semibold text-[#3B2823]">Clique para escolher uma imagem</span>
+              <span class="text-[11px] text-[#8A6D64] mt-0.5">JPG, PNG ou WEBP (convertido em Base64)</span>
+            </div>
+          </label>
+          <input type="file" id="prod-image-file" accept="image/*" required onchange="handleImageBase64(event)" class="hidden" />
+        </div>
+
+        <!-- Nome do Bolo -->
+        <div>
+          <label class="block text-xs font-bold text-[#3B2823] mb-1">Nome do Bolo *</label>
+          <input type="text" id="prod-name" required placeholder="Ex: Bolo Trufado de Morango" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]" />
+        </div>
+
+        <!-- Recheio -->
+        <div>
+          <label class="block text-xs font-bold text-[#3B2823] mb-1">Recheio / Descrição *</label>
+          <textarea id="prod-filling" rows="2" required placeholder="Ex: Brigadeiro cremoso, nata fresca e morangos picados" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]"></textarea>
+        </div>
+
+        <!-- Tamanho Sugerido (Opcional para valor base na vitrine) -->
+        <div>
+          <label class="block text-xs font-bold text-[#3B2823] mb-1">Tamanho Base na Vitrine</label>
+          <select id="prod-size-index" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E4D3C3] text-sm bg-white focus:outline-none focus:border-[#BE3E5B]">
+            <!-- Opções preenchidas via JS -->
+          </select>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeProductModal()" class="px-4 py-2.5 rounded-xl border border-[#E4D3C3] text-xs font-semibold text-[#6B4F46] hover:bg-[#FAF3EB] cursor-pointer">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#BE3E5B] hover:bg-[#9D2F48] text-white text-xs font-bold shadow-md shadow-[#BE3E5B]/20 cursor-pointer">
+            Salvar na Vitrine
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-white border-t border-[#EFE2D6] py-6 mt-auto">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center">
+      <p class="text-xs text-[#785B52]">© Silvia Bolos — Painel Administrativo</p>
+      <a
+        href="https://www.instagram.com/cs_code_solutions?exln=Ym1mNDMzYTYxa3d6"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-1.5 text-xs font-medium text-[#785B52] hover:text-[#BE3E5B] transition px-3 py-1.5 rounded-full bg-[#FAF5EE] border border-[#EFE2D6]"
+      >
+        <span>Powered by <strong class="text-[#3B2823]">CS Code Solutions</strong></span>
+        <i data-lucide="external-link" class="w-3 h-3"></i>
+      </a>
+    </div>
+  </footer>
+
+  <!-- Toast de Notificação -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden bg-[#3B2823] text-white text-xs font-semibold px-4 py-3 rounded-full shadow-xl items-center gap-2 toast-animate">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-[#4ADE80]"></i>
+    <span id="toast-text">Salvo!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
