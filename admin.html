@@ -56,13 +56,13 @@
           <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
         <h1 class="font-serif-title text-2xl font-bold text-[#3B2823]">Acesso Restrito</h1>
-        <p class="text-xs text-[#785B52]">Entre com sua conta cadastrada no Firebase Authentication.</p>
+        <p class="text-xs text-[#785B52]">Entre com sua conta cadastrada no Firebase.</p>
       </div>
 
       <form onsubmit="handleAdminLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-[#5C433B] mb-1">E-mail</label>
-          <input type="email" id="login-email" required placeholder="admin@silviabolos.com" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]" />
+          <input type="email" id="login-email" required placeholder="seuemail@exemplo.com" class="w-full px-3.5 py-2.5 rounded-xl border border-[#E4D3C3] text-sm focus:outline-none focus:border-[#BE3E5B]" />
         </div>
 
         <div>
@@ -89,7 +89,7 @@
       <div>
         <h2 class="font-serif-title text-2xl font-bold text-[#3B2823]">Bolos Cadastrados na Vitrine</h2>
         <p class="text-xs sm:text-sm text-[#785B52] mt-1">
-          Adicione novos bolos com foto em Base64, nome e recheio para aparecerem na página inicial.
+          Sincronizado na nuvem (coleção <code class="bg-[#FAF3EB] px-1.5 py-0.5 rounded text-[#BE3E5B]">silvia_bolos_produtos</code>).
         </p>
       </div>
 
@@ -101,7 +101,7 @@
 
     <!-- Lista de Produtos -->
     <div id="admin-products-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <!-- Renderizado via JS -->
+      <!-- Renderizado via Firestore -->
     </div>
   </main>
 
@@ -124,7 +124,7 @@
             <div id="prod-upload-placeholder" class="flex flex-col items-center text-center p-4">
               <i data-lucide="image-plus" class="w-7 h-7 text-[#BE3E5B] mb-1.5"></i>
               <span class="text-xs font-semibold text-[#3B2823]">Clique para escolher uma imagem</span>
-              <span class="text-[11px] text-[#8A6D64] mt-0.5">JPG, PNG ou WEBP (convertido em Base64)</span>
+              <span class="text-[11px] text-[#8A6D64] mt-0.5">JPG, PNG ou WEBP (otimizado em Base64)</span>
             </div>
           </label>
           <input type="file" id="prod-image-file" accept="image/*" required onchange="handleImageBase64(event)" class="hidden" />
@@ -154,7 +154,7 @@
           <button type="button" onclick="closeProductModal()" class="px-4 py-2.5 rounded-xl border border-[#E4D3C3] text-xs font-semibold text-[#6B4F46] hover:bg-[#FAF3EB] cursor-pointer">
             Cancelar
           </button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#BE3E5B] hover:bg-[#9D2F48] text-white text-xs font-bold shadow-md shadow-[#BE3E5B]/20 cursor-pointer">
+          <button type="submit" id="btn-save-product" class="px-5 py-2.5 rounded-xl bg-[#BE3E5B] hover:bg-[#9D2F48] text-white text-xs font-bold shadow-md shadow-[#BE3E5B]/20 cursor-pointer">
             Salvar na Vitrine
           </button>
         </div>
@@ -184,9 +184,10 @@
     <span id="toast-text">Salvo!</span>
   </div>
 
-  <!-- SDK Firebase (Compat para uso direto sem build) -->
+  <!-- SDK Firebase (App + Auth + Firestore) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <!-- Script Principal -->
   <script src="app.js"></script>
