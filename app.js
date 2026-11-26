@@ -16,7 +16,14 @@ const FIREBASE_CONFIG = {
 const STORE_CONFIG = {
   whatsappNumber: "555192032068", // +55 51 9203-2068
   firestoreCollection: "silvia_bolos_produtos",
+  bannerCollection: "silvia_bolos_banner",
+  bannerDocId: "topo",
   storageCartKey: "silvia_bolos_cart_v1"
+};
+
+const DEFAULT_BANNER = {
+  title: "O bolo perfeito para seus melhores momentos",
+  imageBase64: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1400&q=80"
 };
 
 // Inicialização do Firebase
@@ -26,8 +33,10 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 const auth = firebase.auth ? firebase.auth() : null;
 
-// Cache local dos produtos carregados do Firestore
+// Cache local dos produtos e banner
 let cachedProducts = [];
+let cachedBanner = { ...DEFAULT_BANNER };
+let currentUploadedBannerBase64 = "";
 
 // Tabela Oficial de Tamanhos e Preços
 const CAKE_SIZES = [
@@ -73,7 +82,7 @@ let builderState = {
   audience: "Adulto"
 };
 
-// Base64 temporário no modal do Admin
+// Base64 temporário no modal de produto do Admin
 let currentUploadedBase64 = "";
 
 /* ==========================================================================
@@ -114,7 +123,7 @@ function showToast(message) {
 }
 
 /* ==========================================================================
-   LEITURA EM TEMPO REAL DO FIRESTORE (COLEÇÃO EXCLUSIVA)
+   LEITURA EM TEMPO REAL DO FIRESTORE (PRODUTOS & BANNER)
    ========================================================================== */
 
 function subscribeProducts(onUpdateCallback) {
@@ -135,12 +144,47 @@ function subscribeProducts(onUpdateCallback) {
     );
 }
 
+function subscribeBanner() {
+  db.collection(STORE_CONFIG.bannerCollection)
+    .doc(STORE_CONFIG.bannerDocId)
+    .onSnapshot(
+      (doc) => {
+        if (doc.exists) {
+          cachedBanner = {
+            ...DEFAULT_BANNER,
+            ...doc.data()
+          };
+        } else {
+          cachedBanner = { ...DEFAULT_BANNER };
+        }
+        applyBannerToPage(cachedBanner);
+      },
+      (error) => {
+        console.error("Erro ao carregar banner:", error);
+        applyBannerToPage(DEFAULT_BANNER);
+      }
+    );
+}
+
+function applyBannerToPage(bannerData) {
+  const imgEl = document.getElementById("top-banner-img");
+  const h1El = document.querySelector("#top-banner-img")?.closest("section")?.querySelector("h1");
+
+  if (imgEl && bannerData.imageBase64) {
+    imgEl.src = bannerData.imageBase64;
+  }
+  if (h1El && bannerData.title) {
+    h1El.textContent = bannerData.title;
+  }
+}
+
 /* ==========================================================================
    INICIALIZAÇÃO AUTOMÁTICA DA PÁGINA
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("sizes-grid")) {
+    subscribeBanner();
     renderBuilderOptions();
     updateBuilderSummary();
     updateCartBadge();
@@ -150,6 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (document.getElementById("admin-login-view")) {
+    subscribeBanner();
     initAdminPage();
   }
 
@@ -603,6 +648,98 @@ async function handleAdminLogout() {
   setAdminViewAuthenticated(false);
 }
 
+/* --- Modal Editar Banner --- */
+function openBannerModal() {
+  const modal = document.getElementById("banner-modal");
+  currentUploadedBannerBase64 = cachedBanner.imageBase64 || DEFAULT_BANNER.imageBase64;
+  document.getElementById("banner-title-input").value = cachedBanner.title || DEFAULT_BANNER.title;
+  document.getElementById("banner-image-file").value = "";
+
+  const preview = document.getElementById("banner-image-preview");
+  const placeholder = document.getElementById("banner-upload-placeholder");
+
+  if (currentUploadedBannerBase64) {
+    preview.src = currentUploadedBannerBase64;
+    preview.classList.remove("hidden");
+    placeholder.classList.add("hidden");
+  } else {
+    preview.src = "";
+    preview.classList.add("hidden");
+    placeholder.classList.remove("hidden");
+  }
+
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function closeBannerModal() {
+  const modal = document.getElementById("banner-modal");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
+
+function handleBannerImageBase64(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement("canvas");
+      const maxWidth = 1200;
+      const scale = Math.min(1, maxWidth / img.width);
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      currentUploadedBannerBase64 = canvas.toDataURL("image/jpeg", 0.8);
+
+      const preview = document.getElementById("banner-image-preview");
+      const placeholder = document.getElementById("banner-upload-placeholder");
+      preview.src = currentUploadedBannerBase64;
+      preview.classList.remove("hidden");
+      placeholder.classList.add("hidden");
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveBannerConfig(event) {
+  event.preventDefault();
+  const title = document.getElementById("banner-title-input").value.trim() || DEFAULT_BANNER.title;
+  const imageBase64 = currentUploadedBannerBase64 || DEFAULT_BANNER.imageBase64;
+  const saveBtn = document.getElementById("btn-save-banner");
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = "Salvando...";
+
+  try {
+    await db.collection(STORE_CONFIG.bannerCollection)
+      .doc(STORE_CONFIG.bannerDocId)
+      .set({
+        title,
+        imageBase64,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+    cachedBanner = { title, imageBase64 };
+    applyBannerToPage(cachedBanner);
+    closeBannerModal();
+    showToast("Banner atualizado!");
+  } catch (err) {
+    console.error("Erro ao salvar banner:", err);
+    showToast("Erro ao salvar banner.");
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Salvar Banner";
+  }
+}
+
+/* --- Produtos --- */
 function populateAdminSizeSelect() {
   const select = document.getElementById("prod-size-index");
   if (!select) return;
@@ -681,7 +818,6 @@ function closeProductModal() {
   modal.classList.remove("flex");
 }
 
-// Converte e comprime imagem para Base64 (garantindo documento leve abaixo do limite de 1MB do Firestore)
 function handleImageBase64(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -738,7 +874,7 @@ async function saveNewProduct(event) {
     });
 
     closeProductModal();
-    showToast("Novo bolo salvo na nuvem!");
+    showToast("Novo bolo salvo na vitrine!");
   } catch (err) {
     console.error("Erro ao salvar bolo:", err);
     showToast("Erro ao salvar. Verifique as regras do Firestore.");
